@@ -23,6 +23,8 @@ import com.google.gson.JsonSyntaxException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import kanj.apps.fancyassgallery.R;
@@ -70,29 +72,33 @@ public class SearchMovies extends Fragment {
     private void doSearch() {
         String text = etSearch.getText().toString().trim();
         if (!TextUtils.isEmpty(text) && text.length() >= 2) {
-            JsonObjectRequest req = new JsonObjectRequest(
-                    Request.Method.GET,
-                    URL + text,
-                    null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                SearchResult result = new Gson().fromJson(response.toString(), SearchResult.class);
-                                displayList(result);
-                            } catch (JsonSyntaxException jsone) {
+            try {
+                JsonObjectRequest req = new JsonObjectRequest(
+                        Request.Method.GET,
+                        URL + URLEncoder.encode(text, "UTF-8"),
+                        null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    SearchResult result = new Gson().fromJson(response.toString(), SearchResult.class);
+                                    displayList(result);
+                                } catch (JsonSyntaxException jsone) {
+
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
 
                             }
                         }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                        }
-                    }
-            );
-            VolleyInstance.getInstance(getContext()).addToRequestQueue(req);
+                );
+                VolleyInstance.getInstance(getContext()).addToRequestQueue(req);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         } else {
             // Ask user to type properly
         }

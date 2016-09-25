@@ -19,7 +19,9 @@ public class SearchResult {
     public ArrayList<String> getUrls() {
         ArrayList<String> urls = new ArrayList<>();
         for (Item i: Search) {
-            urls.add(i.Poster);
+            if (!"N/A".equals(i.Poster)) {
+                urls.add(i.Poster);
+            }
         }
         return urls;
     }
